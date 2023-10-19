@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<nav id="nav" class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav id="nav" class="navbar navbar-expand-lg">
   <a class="navbar-brand" href="">
     <h2>POS</h2>
   </a>
@@ -77,13 +77,13 @@
         <table class="table">
           <thead>
           <tr>
-            <th scope="col">Cus_ID</th>
-            <th scope="col">Name</th>
-            <th scope="col">NIC</th>
-            <th scope="col">Address</th>
+            <th class="table-heading" scope="col">Cus_ID</th>
+            <th class="table-heading" scope="col">Name</th>
+            <th class="table-heading" scope="col">NIC</th>
+            <th class="table-heading" scope="col">Address</th>
           </tr>
           </thead>
-          <tbody id="customer-tbl-body"></tbody>
+          <tbody class="table-tr" id="customer-tbl-body"></tbody>
         </table>
       </div>
     </div>
@@ -135,14 +135,14 @@
       <table class="table">
         <thead>
         <tr>
-          <th scope="col">Item_ID</th>
-          <th scope="col">Item_Name</th>
-          <th scope="col">Quantity</th>
-          <th scope="col">Price</th>
-          <th scope="col">Description</th>
+          <th class="table-heading" scope="col">Item_ID</th>
+          <th class="table-heading" scope="col">Item_Name</th>
+          <th class="table-heading" scope="col">Quantity</th>
+          <th class="table-heading" scope="col">Price</th>
+          <th class="table-heading" scope="col">Description</th>
         </tr>
         </thead>
-        <tbody id="item-tbl-body"></tbody>
+        <tbody class="table-tr" id="item-tbl-body"></tbody>
       </table>
     </div>
   </div>
@@ -175,12 +175,12 @@
       <table class="table">
         <thead>
         <tr>
-          <th scope="col">Item_ID</th>
-          <th scope="col">Quantity</th>
-          <th scope="col">Total</th>
+          <th class="table-heading" scope="col">Item_ID</th>
+          <th class="table-heading" scope="col">Quantity</th>
+          <th class="table-heading" scope="col">Total</th>
         </tr>
         </thead>
-        <tbody id="placeOrder-tbody"></tbody>
+        <tbody class="table-tr" id="placeOrder-tbody"></tbody>
       </table>
       <p id="total" class="fs-2">Total :</p>
       <h2 id="tot"></h2>
@@ -196,7 +196,7 @@
       <h2 id="cash2"></h2>
 
       <div class="mt-4">
-        <button type="button" class="btn btn-primary">Place Order</button>
+          <button type="button" class="btn btn-primary">Place Order</button>
       </div>
 
     </div>
@@ -206,6 +206,8 @@
 
 <script src="assest/lib/jquery.min.js"></script>
 <script src="assest/bootstrap-5/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <script>
     $("#customerForm").css('display','none');
     $("#storeForm").css('display','none');
@@ -233,6 +235,9 @@
       $("#myTabContent").css('display','none');
     })
 
+    const nicPattern = /^\d{9}[VvXx]$/;
+    const regNIC = new RegExp(nicPattern);
+
     //-----------------------------Customer--------------------------------
     var row_index = null;
     //Submit
@@ -248,10 +253,24 @@
       console.log(address)
 
       let record = `<tr><td class="cus_id">${cus_id}</td><td class="name">${name}</td><td class="nic">${nic}</td><td class="address">${address}</td></tr>`;
-      $("#customer-tbl-body").append(record);
 
       $("#customerbtns>button[type='reset']").click();
 
+      if(!cus_id | !name | !nic | !address ){
+        Swal.fire({
+          icon: 'error',
+          title: 'Please Check Text Field',
+          text: 'Something went wrong!'
+        })
+      }else{
+        Swal.fire({
+          icon: 'success',
+          title: 'Customer Saved Successful',
+          showConfirmButton: false,
+          timer: 1500
+        })
+        $("#customer-tbl-body").append(record);
+      }
     });
 
     //Click Row
@@ -284,15 +303,48 @@
       console.log(address)
 
       let record = `<td class="cus_id">${cus_id}</td><td class="name">${name}</td><td class="nic">${nic}</td><td class="address">${address}</td>`;
-      $("#customer-tbl-body>tr").eq(row_index).html(record);
 
       $("#customerbtns>button[type='reset']").click();
+
+      if(!cus_id | !name | !nic | !address){
+        Swal.fire({
+          icon: 'error',
+          title: 'Please Check Text Field',
+          text: 'Something went wrong!'
+        })
+      }else{
+        Swal.fire({
+          icon: 'success',
+          title: 'Customer Update Successful',
+          showConfirmButton: false,
+          timer: 1500
+        })
+        $("#customer-tbl-body>tr").eq(row_index).html(record);
+      }
 
     });
 
     //Delete
     $("#customerbtns>button[type='button']").eq(2).on("click", () => {
-      $("tbody>tr").eq(row_index).remove();
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You want delete row?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire(
+                  'Deleted!',
+                  'Your row has been deleted.',
+                  'success'
+          )
+          $("tbody>tr").eq(row_index).remove();
+        }
+      })
+
       $("button[type='reset']").click();
     })
 
@@ -377,6 +429,42 @@
 
       $("#cash2").text(cash);
     });
+
+
+    /* ------------------------------Form Design----------------------------------- */
+
+    $("#customer-nav").on('click',()=>{
+      $("#customer-nav").css('background','white');
+      $("#customer-nav").css('color','black');
+
+      $("#store-nav").css('background','#0d6efd');
+      $("#store-nav").css('color','white');
+
+      $("#place-order-nav").css('background','#0d6efd');
+      $("#place-order-nav").css('color','white');
+    })
+
+    $("#store-nav").on('click',()=>{
+      $("#store-nav").css('background','white');
+      $("#store-nav").css('color','black');
+
+      $("#customer-nav").css('background','#0d6efd');
+      $("#customer-nav").css('color','white');
+
+      $("#place-order-nav").css('background','#0d6efd');
+      $("#place-order-nav").css('color','white');
+    })
+
+    $("#place-order-nav").on('click',()=>{
+      $("#place-order-nav").css('background','white');
+      $("#place-order-nav").css('color','black');
+
+      $("#customer-nav").css('background','#0d6efd');
+      $("#customer-nav").css('color','white');
+
+      $("#store-nav").css('background','#0d6efd');
+      $("#store-nav").css('color','white');
+    })
 
   </script>
 </body>
